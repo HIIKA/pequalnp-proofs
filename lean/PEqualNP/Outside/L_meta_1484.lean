@@ -30,13 +30,13 @@ difference set).  Its vertex-cover number is `13`, by the perfect matching `p_i 
 
 * Part 1 (`PEqualNP.Outside.L_meta_1484_aux`): the `L-meta-614` machinery, ported inline — the
   wire semantics `val`, the dependence `Trace`/`Live`, the branching budget and the theorem
-  `step614 : n + t ≤ C.size + 1`.  `Outside` files may import only `Mathlib` and
-  `PEqualNP.Defs`, so the merged proof is copied here rather than imported.
+  `step614 : n + t ≤ C.size + 1`.  `Outside` files may bring in only `Mathlib` and
+  `PEqualNP.Defs`, so the merged proof is copied here in full.
 * Part 2 (`PEqualNP.Outside.L_meta_1484_graph`): the plane's incidence graph, its exact
   vertex-cover number and the five hypotheses of `step614`.
 * Part 3: the recorded statement, proved from them.
 
-Nothing is imported beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
+Nothing is brought in beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
 namespace of this file, and no proof leaves a gap, adds an axiom, or bypasses the kernel.
 -/
 
