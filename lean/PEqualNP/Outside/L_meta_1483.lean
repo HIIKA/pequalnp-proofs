@@ -34,7 +34,7 @@ cover of all seven points.  So the bound is `14 + 7 ≤ size + 1`, that is `20 �
 * Part 3: the recorded statement, proved from them.
 
 Nothing is brought in beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
-namespace of this file, and no proof leaves a gap or bypasses the kernel.
+scope of this file, and no proof leaves a gap or bypasses the kernel.
 -/
 
 /-! ## Part 1 — the `L-meta-614` machinery, ported inline
@@ -1051,11 +1051,10 @@ end PEqualNP.Outside.L_meta_1483
 
 /-! ## Part 3 — the recorded statement -/
 
-namespace PEqualNP.Outside
 
 /-- **L-meta-1483**: every monotone AND/OR circuit for the edge function of the Heawood graph has
 at least 20 gates.  This is `L-meta-614` at `n = 14`, `t = 7`, `20 = 14 + 7 - 1`. -/
-theorem L_meta_1483 :
+theorem PEqualNP.Outside.L_meta_1483 :
     ∀ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.Monotone2 C → (∀ x : Fin 14 → Bool, C.eval (List.ofFn x) = true ↔ ∃ u v : Fin 14, (SimpleGraph.fromRel (fun a b : Fin 14 => a.val < 7 ∧ 7 ≤ b.val ∧ (a.val + (b.val - 7)) % 7 ∈ ({0, 1, 3} : Finset ℕ))).Adj u v ∧ x u = true ∧ x v = true) → 20 ≤ C.size := by
   classical
   intro C hC he
@@ -1068,4 +1067,3 @@ theorem L_meta_1483 :
     hC he
   omega
 
-end PEqualNP.Outside
