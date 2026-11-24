@@ -19,8 +19,9 @@ theorem PEqualNP.Outside.R_meta_1480_3 :
   have hInc : ∀ p l : Fin 7, ((p = l ∨ p = l + 1 ∨ p = l + 3) ↔ p ∈ fanoLines l) := by
     decide
   have hgates : ∀ j < C.gates.length, C.gates[j]? = some (gateAt C j) := by
-    intro j hj
-    simp only [gateAt, List.getD_eq_getElem?_getD, List.getElem?_eq_getElem hj, Option.getD_some]
+      intro j hj
+      show C.gates[j]? = some (C.gates.getD j ⟨GateOp.or, []⟩)
+      simp only [List.getD_eq_getElem?_getD, List.getElem?_eq_getElem hj, Option.getD_some]
   have hspec : ∀ j < C.gates.length,
       ∃ a b : ℕ, (gateAt C j).inputs = [a, b] ∧ a ≠ b ∧ a < 14 + j ∧ b < 14 + j := by
     intro j hj
@@ -44,12 +45,18 @@ theorem PEqualNP.Outside.R_meta_1480_3 :
       rw [hins]
       simp
   have hdist : ∀ j < C.size, opnd C j 0 ≠ opnd C j 1 := by
-    intro j hj
-    obtain ⟨a, b, hins, hab, -, -⟩ := hspec j hj
-    have h0 : opnd C j 0 = a := by simp [opnd, hins]
-    have h1 : opnd C j 1 = b := by simp [opnd, hins]
-    rw [h0, h1]
-    exact hab
+      intro j hj
+      obtain ⟨a, b, hins, hab, -, -⟩ := hspec j hj
+      have h0 : opnd C j 0 = a := by
+        show (gateAt C j).inputs.getD 0 0 = a
+        rw [hins]
+        rfl
+      have h1 : opnd C j 1 = b := by
+        show (gateAt C j).inputs.getD 1 0 = b
+        rw [hins]
+        rfl
+      rw [h0, h1]
+      exact hab
   have hB' : ∀ x : Fin 14 → Bool, C.eval (List.ofFn x) = true ↔
       ∃ u t : Fin 7, u ∈ fanoLines t ∧
         x (Fin.castAdd 7 u) = true ∧ x (Fin.natAdd 7 t) = true := by
