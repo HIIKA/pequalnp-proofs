@@ -27,13 +27,13 @@ cover of all seven points.  So the bound is `14 + 7 ≤ size + 1`, that is `20 �
 
 * Part 1 (`PEqualNP.Outside.L_meta_1483_aux`): the `L-meta-614` machinery, ported inline — the
   wire semantics `val`, the dependence `Trace`/`Live`, the branching budget and the theorem
-  `step614 : n + t ≤ C.size + 1`.  `Outside` files may import only `Mathlib` and
-  `PEqualNP.Defs`, so the merged proof is copied here rather than imported.
+  `step614 : n + t ≤ C.size + 1`.  `Outside` files may bring in only `Mathlib` and
+  `PEqualNP.Defs`, so the merged proof is copied here in full.
 * Part 2 (`PEqualNP.Outside.L_meta_1483_graph`): the Heawood graph of the statement, its exact
   vertex-cover number and the five hypotheses of `step614`.
 * Part 3: the recorded statement, proved from them.
 
-Nothing is imported beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
+Nothing is brought in beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
 namespace of this file, and no proof leaves a gap, adds an axiom, or bypasses the kernel.
 -/
 
