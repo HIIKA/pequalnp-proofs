@@ -37,7 +37,7 @@ difference set).  Its vertex-cover number is `13`, by the perfect matching `p_i 
 * Part 3: the recorded statement, proved from them.
 
 Nothing is brought in beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
-namespace of this file, and no proof leaves a gap or bypasses the kernel.
+scope of this file, and no proof leaves a gap or bypasses the kernel.
 -/
 
 /-! ## Part 1 — the `L-meta-614` machinery, ported inline
@@ -1057,12 +1057,11 @@ end PEqualNP.Outside.L_meta_1484
 
 /-! ## Part 3 — the recorded statement -/
 
-namespace PEqualNP.Outside
 
 /-- **L-meta-1484**: every monotone AND/OR circuit for the edge function of the point-line
 incidence graph of the projective plane of order three has at least 38 gates.  This is
 `L-meta-614` at `n = 26`, `t = 13`, `38 = 26 + 13 - 1`. -/
-theorem L_meta_1484 :
+theorem PEqualNP.Outside.L_meta_1484 :
     ∀ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.Monotone2 C → (∀ x : Fin 26 → Bool, C.eval (List.ofFn x) = true ↔ ∃ u v : Fin 26, (SimpleGraph.fromRel (fun a b : Fin 26 => a.val < 13 ∧ 13 ≤ b.val ∧ (a.val + (b.val - 13)) % 13 ∈ ({0, 1, 3, 9} : Finset ℕ))).Adj u v ∧ x u = true ∧ x v = true) → 38 ≤ C.size := by
   classical
   intro C hC he
@@ -1075,4 +1074,3 @@ theorem L_meta_1484 :
     hC he
   omega
 
-end PEqualNP.Outside
