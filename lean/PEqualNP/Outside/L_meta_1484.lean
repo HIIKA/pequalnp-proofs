@@ -28,11 +28,11 @@ difference set).  Its vertex-cover number is `13`, by the perfect matching `p_i 
 
 **What is in this file**
 
-* Part 1 (`PEqualNP.Outside.L_meta_1484_aux`): the `L-meta-614` machinery, ported inline — the
+* Part 1 (`PEqualNP.Outside.L_meta_1484`): the `L-meta-614` machinery, ported inline — the
   wire semantics `val`, the dependence `Trace`/`Live`, the branching budget and the theorem
   `step614 : n + t ≤ C.size + 1`.  `Outside` files may bring in only `Mathlib` and
   `PEqualNP.Defs`, so the merged proof is copied here in full.
-* Part 2 (`PEqualNP.Outside.L_meta_1484_graph`): the plane's incidence graph, its exact
+* Part 2 (`PEqualNP.Outside.L_meta_1484`): the plane's incidence graph, its exact
   vertex-cover number and the five hypotheses of `step614`.
 * Part 3: the recorded statement, proved from them.
 
@@ -44,7 +44,7 @@ namespace of this file, and no proof leaves a gap or bypasses the kernel.
 -/
 
 
-namespace PEqualNP.Outside.L_meta_1484_aux
+namespace PEqualNP.Outside.L_meta_1484
 
 open PEqualNP.CircuitLowerBounds PEqualNP.MetaComplexity
 open Relation
@@ -199,10 +199,10 @@ theorem difference {n : ℕ} (C : Circuit) (x y : Fin n → Bool) :
     obtain ⟨i, hi, hpath⟩ := ih a hlt (live_before hs hj) ha'
     exact ⟨i, hi, hpath.tail ⟨ha',hs,hj⟩⟩
 
-end PEqualNP.Outside.L_meta_1484_aux
+end PEqualNP.Outside.L_meta_1484
 
 
-namespace PEqualNP.Outside.L_meta_1484_aux
+namespace PEqualNP.Outside.L_meta_1484
 
 open PEqualNP.CircuitLowerBounds PEqualNP.MetaComplexity
 open Relation
@@ -327,10 +327,10 @@ theorem no_eligible_unique {v : Fin n} (h : ¬ Eligible C v) :
   intro a j j' hc hj hj'
   exact nonbranch_unique (fun hb => h ⟨a,live_before hj.1 hj.2,hc,hb⟩) hj hj'
 
-end PEqualNP.Outside.L_meta_1484_aux
+end PEqualNP.Outside.L_meta_1484
 
 
-namespace PEqualNP.Outside.L_meta_1484_aux
+namespace PEqualNP.Outside.L_meta_1484
 
 open PEqualNP.CircuitLowerBounds PEqualNP.MetaComplexity
 open Relation
@@ -579,10 +579,10 @@ theorem covers_edge (hC : Monotone2 C) (he : GraphEval C G) {v w a₀ b₀ : Fin
   rw [hX] at hs'
   contradiction
 
-end PEqualNP.Outside.L_meta_1484_aux
+end PEqualNP.Outside.L_meta_1484
 
 
-namespace PEqualNP.Outside.L_meta_1484_aux
+namespace PEqualNP.Outside.L_meta_1484
 
 open PEqualNP.CircuitLowerBounds PEqualNP.MetaComplexity
 open Relation
@@ -790,14 +790,14 @@ theorem branch_budget (hC : Monotone2 C) (he : GraphEval C G)
   change n+B.card ≤ C.gates.length+1
   omega
 
-end PEqualNP.Outside.L_meta_1484_aux
+end PEqualNP.Outside.L_meta_1484
 
 
-namespace PEqualNP.Outside.L_meta_1484_aux
+namespace PEqualNP.Outside.L_meta_1484
 
 theorem step614 :
     ∀ (n t : ℕ) (G : SimpleGraph (Fin n)) (C : PEqualNP.CircuitLowerBounds.Circuit), (∀ v : Fin n, ∃ w : Fin n, G.Adj v w) → (∀ v w : Fin n, v ≠ w → ¬ G.Adj v w → 2 ≤ (G.neighborSet v).ncard → 2 ≤ (G.neighborSet w).ncard → ∃ u : Fin n, ¬ (G.Adj v u ↔ G.Adj w u)) → (∀ v w : Fin n, G.Adj v w → 2 ≤ (G.neighborSet v).ncard → 2 ≤ (G.neighborSet w).ncard → ∃ a b : Fin n, G.Adj v a ∧ a ≠ w ∧ G.Adj w b ∧ b ≠ v ∧ (a = b ∨ ¬ G.Adj a b)) → (∃ S : Finset (Fin n), (∀ u v : Fin n, G.Adj u v → 2 ≤ (G.neighborSet u).ncard → 2 ≤ (G.neighborSet v).ncard → u ∈ S ∨ v ∈ S) ∧ S.card = t) → (∀ S : Finset (Fin n), (∀ u v : Fin n, G.Adj u v → 2 ≤ (G.neighborSet u).ncard → 2 ≤ (G.neighborSet v).ncard → u ∈ S ∨ v ∈ S) → t ≤ S.card) → PEqualNP.MetaComplexity.Monotone2 C → (∀ x : Fin n → Bool, (C.eval (List.ofFn x) = true ↔ ∃ u v : Fin n, G.Adj u v ∧ x u = true ∧ x v = true)) → n + t ≤ C.size + 1 := by
-  open PEqualNP.Outside.L_meta_1484_aux in
+  open PEqualNP.Outside.L_meta_1484 in
   classical
   intro n t G C hdegree htwins hadj _ ht hC he
   by_cases hn : n=0
@@ -841,11 +841,11 @@ theorem step614 :
   have hbudget := branch_budget hC hE hdegree ho'
   exact (Nat.add_le_add_left (htc.trans hcap) n).trans hbudget
 
-end PEqualNP.Outside.L_meta_1484_aux
+end PEqualNP.Outside.L_meta_1484
 
 /-! ## Part 2 — the plane of order three and its invariants -/
 
-namespace PEqualNP.Outside.L_meta_1484_graph
+namespace PEqualNP.Outside.L_meta_1484
 
 open PEqualNP.CircuitLowerBounds PEqualNP.MetaComplexity
 
@@ -1053,7 +1053,7 @@ theorem hadj : ∀ v w : Fin 26, Pl.Adj v w →
     ∃ a b : Fin 26, Pl.Adj v a ∧ a ≠ w ∧ Pl.Adj w b ∧ b ≠ v ∧ (a = b ∨ ¬ Pl.Adj a b) := by
   decide
 
-end PEqualNP.Outside.L_meta_1484_graph
+end PEqualNP.Outside.L_meta_1484
 
 /-! ## Part 3 — the recorded statement -/
 
@@ -1066,12 +1066,12 @@ theorem L_meta_1484 :
     ∀ C : PEqualNP.CircuitLowerBounds.Circuit, PEqualNP.MetaComplexity.Monotone2 C → (∀ x : Fin 26 → Bool, C.eval (List.ofFn x) = true ↔ ∃ u v : Fin 26, (SimpleGraph.fromRel (fun a b : Fin 26 => a.val < 13 ∧ 13 ≤ b.val ∧ (a.val + (b.val - 13)) % 13 ∈ ({0, 1, 3, 9} : Finset ℕ))).Adj u v ∧ x u = true ∧ x v = true) → 38 ≤ C.size := by
   classical
   intro C hC he
-  have hb := L_meta_1484_aux.step614 26 13 L_meta_1484_graph.Pl C
-    L_meta_1484_graph.hdegree (fun v w h h1 _ _ => L_meta_1484_graph.htwins v w h h1)
-    (fun v w h _ _ => L_meta_1484_graph.hadj v w h)
-    ⟨L_meta_1484_graph.cover, fun u v h _ _ => L_meta_1484_graph.cover_is u v h,
-      L_meta_1484_graph.cover_card⟩
-    (fun S hS => L_meta_1484_graph.cover_lower S hS)
+  have hb := L_meta_1484.step614 26 13 L_meta_1484.Pl C
+    L_meta_1484.hdegree (fun v w h h1 _ _ => L_meta_1484.htwins v w h h1)
+    (fun v w h _ _ => L_meta_1484.hadj v w h)
+    ⟨L_meta_1484.cover, fun u v h _ _ => L_meta_1484.cover_is u v h,
+      L_meta_1484.cover_card⟩
+    (fun S hS => L_meta_1484.cover_lower S hS)
     hC he
   omega
 
