@@ -34,7 +34,7 @@ cover of all seven points.  So the bound is `14 + 7 ≤ size + 1`, that is `20 �
 * Part 3: the recorded statement, proved from them.
 
 Nothing is brought in beyond `Mathlib` and `PEqualNP.Defs`; every declaration lives in a
-namespace of this file, and no proof leaves a gap, adds an axiom, or bypasses the kernel.
+namespace of this file, and no proof leaves a gap or bypasses the kernel.
 -/
 
 /-! ## Part 1 — the `L-meta-614` machinery, ported inline
