@@ -503,6 +503,7 @@ def main():
     rows0 = int(extra.get('rows0', '28'))
     addcap = int(extra.get('addcap', '400'))
     roundsec = int(extra.get('roundsec', '900'))
+    maxrows = int(extra.get('maxrows', '1000000'))
     do_control = extra.get('control', '1') == '1'
     headgate = None
     if extra.get('headgate'):
@@ -684,6 +685,8 @@ def main():
             L(f'WITNESS: size {len(tg)} <= {k}, verified against all {len(rows)} rows')
             return 0
         add = [rows[i] for i in viol if i not in active_idx][:addcap]
+        if len(active) + len(add) > maxrows:
+            add = add[:max(0, maxrows - len(active))]
         active = active + add
         row_index = {id(r): i for i, r in enumerate(rows)}
         active_idx |= {row_index[id(r)] for r in add}
