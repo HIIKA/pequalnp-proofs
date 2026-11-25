@@ -47,6 +47,60 @@ case "$mode" in
   *) log "bad mode '$mode'"; exit 2 ;;
 esac
 
+# ---- 1t. python synthesis-tool mode (cnf ends with .py) ------------------------
+# The tool (e.g. sat-offload/tools/synth_wit.py) generates its own CNFs and drives
+# cadical itself (CEGAR); it writes work_out/verdict.txt ('SAT'|'UNSAT'|'UNKNOWN'|
+# 'CONTROL-FAIL'), witness.json and cegar.log. SAT_N = spec id, SAT_S = gate budget k.
+if [ -n "$cnf_in" ] && case "$cnf_in" in *.py) true;; *) false;; esac; then
+  [ -f "$cnf_in" ] || { log "tool not found in checkout: $cnf_in"; exit 2; }
+  log "tool mode: $cnf_in (n=$gen_n s=$gen_s timeout=${timeout_min}m extra='$extra')"
+  # build cadical first (same pinning as below) - the tool drives the binary itself
+  CAD="$repo/.cadical/cadical"
+  if [ ! -x "$CAD" ]; then
+    log "building cadical from pinned tag rel-3.1.0"
+    src="$repo/.cadical/src"
+    mkdir -p "$repo/.cadical"
+    [ -d "$src/.git" ] || git clone -q --depth 1 --branch rel-3.1.0 \
+        https://github.com/arminbiere/cadical.git "$src" || { log "clone failed"; exit 2; }
+    if ! ( cd "$src" \
+           && ./configure > "$repo/.cadical/configure.log" 2>&1 \
+           && make -j"$(nproc)" > "$repo/.cadical/make.log" 2>&1 ); then
+      log "cadical build failed"; tail -n 30 "$repo/.cadical/make.log" "$repo/.cadical/configure.log" 2>/dev/null
+      exit 2
+    fi
+    cp "$src/build/cadical" "$CAD"
+  fi
+  "$CAD" --version > "$work/cadical_version.txt" 2>&1 || true
+  log "cadical: $(head -n 2 "$work/cadical_version.txt" | tr '\n' ' ')"
+  SAT_CADICAL="$CAD" SAT_N="$gen_n" SAT_S="$gen_s" SAT_TIMEOUT_MIN="$timeout_min" \
+    SAT_EXTRA_ARGS="$extra" python3 "$cnf_in" "$work" 2>&1 | tee -a "$work/driver.log"
+  trc=$?
+  log "tool exit code: $trc"
+  verdict="UNKNOWN"
+  [ -f "$work/verdict.txt" ] && verdict="$(cat "$work/verdict.txt" | tr -d '\r\n')"
+  echo "$verdict" > "$work/verdict.txt"
+  log "verdict: $verdict (expected: $expect)"
+  verify_note="tool mode (see cegar.log)"
+  [ -f "$work/witness.json" ] && verify_note="witness.json written"
+  [ -f "$work/input.cnf" ] && gzip -f -9 "$work/input.cnf" 2>/dev/null || true
+  [ -f "$work/model" ] && gzip -f -9 "$work/model" 2>/dev/null || true
+  {
+    echo "## sat-offload: $label"
+    echo ""
+    echo "| field | value |"
+    echo "|---|---|"
+    echo "| verdict | **$verdict** (expected $expect) |"
+    echo "| mode | tool ($cnf_in) | tool rc | $trc |"
+    echo "| cadical | $(sed -n '2p' "$work/cadical_version.txt" 2>/dev/null || head -1 "$work/cadical_version.txt") |"
+    echo "| witness | $verify_note |"
+    echo "| artifact | sat-$label |"
+  } >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+  if [ "$expect" = "SAT" ]   && [ "$verdict" != "SAT" ];   then log "EXPECT MISMATCH"; exit 1; fi
+  if [ "$expect" = "UNSAT" ] && [ "$verdict" != "UNSAT" ]; then log "EXPECT MISMATCH"; exit 1; fi
+  log "done"
+  exit 0
+fi
+
 # ---- 1. resolve the CNF --------------------------------------------------------
 if [ -n "$cnf_in" ]; then
   case "$cnf_in" in
