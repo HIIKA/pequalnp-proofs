@@ -482,6 +482,25 @@ def main():
       f'out={out_wire} notmin={notmin} seed={seed} budget={budget_min}m')
     L(f'graph: {len(EDGES)} edges; scen = {len(MIN_ONES)} min-ones + {len(MAX_ZEROS)} max-zeros')
 
+    # scenario sanity (the out=32-at-K=20 shard bug, 2026-11-26): the output
+    # one-hot covers wires 0..N+K-1; an out= beyond that KeyError'd mid-build.
+    # Fail fast with a clean verdict instead.
+    if out_wire is not None and not (0 <= out_wire < N + K):
+        L(f'CONTROL (scenario) FAILED: out={out_wire} outside wire range 0..{N + K - 1} '
+          f'for K={K} (the out=32 shards were K=21-calibration indices; at K=20 the '
+          f'last wire is {N + K - 1})')
+        write_verdict('CONTROL-FAIL')
+        return 2
+    for gi, opname in cube_ops.items():
+        if opname not in ('and', 'or', 'not'):
+            L(f'CONTROL (scenario) FAILED: op{gi}={opname} not an op')
+            write_verdict('CONTROL-FAIL')
+            return 2
+        if not (0 <= gi < K):
+            L(f'CONTROL (scenario) FAILED: op index {gi} outside 0..{K - 1}')
+            write_verdict('CONTROL-FAIL')
+            return 2
+
     if do_control:
         # (a) construction computes F on ALL rows
         cv = viol_rows(CONTROL_GATES, CONTROL_OUT)
