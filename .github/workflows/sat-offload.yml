@@ -1,0 +1,117 @@
+# SAT OFFLOAD — the cloud SAT farm for the pequalnp 8399/8402/N=6 queue.
+#
+# Runs ONLY in our fork (HIIKA/pequalnp-proofs); the job-level guard below refuses
+# anywhere else, so this workflow is inert if the branch ever reaches another repo.
+# Manual dispatch only: `gh workflow run sat-offload.yml --repo HIIKA/pequalnp-proofs
+#   --ref sat-offload -f label=... -f cnf=... -f mode=... [-f n=8 -f s=14 -f mask=...]`
+# NEVER open a PR upstream from the sat-offload branch (it carries CNF payloads).
+#
+# Public-repo free tier: 360 min/job, ~20 concurrent jobs. timeout_minutes <= 350
+# leaves the last ~10 min of the job for packing + artifact upload.
+name: sat-offload
+
+on:
+  workflow_dispatch:
+    inputs:
+      label:
+        description: 'Run label; artifact is named sat-<label> (use [a-zA-Z0-9._-] only)'
+        required: true
+        type: string
+      cnf:
+        description: 'CNF instance: repo-relative path or https:// URL; empty = generate from n/s/mask below'
+        required: false
+        type: string
+        default: ''
+      n:
+        description: 'input bits — used to GENERATE the CNF (with s, mask) and to DECODE a witness'
+        required: false
+        type: string
+        default: ''
+      s:
+        description: 'gate budget — generate + decode context (padding allowed)'
+        required: false
+        type: string
+        default: ''
+      mask:
+        description: 'decimal truth table, bit r = f(r) — generate + full-row verify of the witness'
+        required: false
+        type: string
+        default: ''
+      rows:
+        description: 'row selection when GENERATING: all = 2^n rows; essential = minterms+max false points'
+        required: false
+        type: choice
+        default: 'all'
+        options:
+          - 'all'
+          - 'essential'
+      mode:
+        description: 'solve = plain decision | witness = -w model + --elim=false + decode/verify | lrat = UNSAT LRAT certificate'
+        required: false
+        type: choice
+        default: 'solve'
+        options:
+          - 'solve'
+          - 'witness'
+          - 'lrat'
+      extra_args:
+        description: 'extra cadical args appended LAST (wins), e.g. "--seed=13" or "--plain"'
+        required: false
+        type: string
+        default: ''
+      timeout_minutes:
+        description: 'wall-clock cap for the solve itself; <= 350 (job cap 360)'
+        required: false
+        type: string
+        default: '350'
+      expect:
+        description: 'fail the job (red) if the verdict differs: SAT | UNSAT | any'
+        required: false
+        type: choice
+        default: 'any'
+        options:
+          - 'any'
+          - 'SAT'
+          - 'UNSAT'
+
+permissions:
+  contents: read
+
+jobs:
+  sat:
+    # Fork-only guard: this farm never runs anywhere but HIIKA/pequalnp-proofs.
+    if: github.repository == 'HIIKA/pequalnp-proofs'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: checkout (dispatch ref)
+        uses: actions/checkout@v4
+
+      - name: cadical build cache (pinned rel-3.1.0)
+        uses: actions/cache@v4
+        with:
+          path: .cadical/cadical
+          key: cadical-rel-3.1.0-ubuntu-24.04-v1
+
+      - name: resolve, solve, decode+verify, verdict
+        env:
+          SAT_LABEL: ${{ inputs.label }}
+          SAT_CNF: ${{ inputs.cnf }}
+          SAT_N: ${{ inputs.n }}
+          SAT_S: ${{ inputs.s }}
+          SAT_MASK: ${{ inputs.mask }}
+          SAT_ROWS: ${{ inputs.rows }}
+          SAT_MODE: ${{ inputs.mode }}
+          SAT_EXTRA_ARGS: ${{ inputs.extra_args }}
+          SAT_TIMEOUT_MIN: ${{ inputs.timeout_minutes }}
+          SAT_EXPECT: ${{ inputs.expect }}
+        run: bash sat-offload/tools/sat_run.sh
+
+      - name: upload result artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sat-${{ inputs.label }}
+          path: work_out/
+          if-no-files-found: warn
+          retention-days: 90
