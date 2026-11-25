@@ -343,7 +343,7 @@ def encode_cnf(path, n, k, rows, headgate=None, two_out=False,
                 except OSError:
                     pass
                 raise ControlFail(f'clause falsified by control assignment: {lits[:8]}')
-        f.write(' '.join(('' if s else '-') + str(v0 + 1) for (v0, s) in lits) + '\n')
+        f.write(' '.join(('' if s else '-') + str(v0 + 1) for (v0, s) in lits) + ' 0\n')
         nclauses += 1
 
     # gate structure
