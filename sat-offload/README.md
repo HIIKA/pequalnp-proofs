@@ -61,11 +61,16 @@ gh workflow run sat-offload.yml --repo HIIKA/pequalnp-proofs --ref sat-offload \
 
 ## Provenance (byte-pinned instances)
 
-| file | sha256 | what |
-|---|---|---|
-| `cnfs/p_00_8.cnf` | `83c405a3…c22c61197` | 8399 g8_14 + units `1 0; 4201 0; 8409 0` (gate0 = AND(x0,w8)); UNSAT <1s |
-| `cnfs/mask_14.cnf` | `e252b21b…d838acff1a2b` | 8402 full-256-row s=14 (42000 vars, 229339 clauses) |
-| `cnfs/mask_15.cnf` | `b079b24f…461e028c53` | 8402 full-256-row s=15 (44960 vars, 257476 clauses) |
+The local pipeline artifacts are CRLF (Windows Python); git commits them
+LF-normalized (verified: committed blob == original with every `\r\n` → `\n`,
+nothing else changed — DIMACS-identical, and the runner's own `genmask.py`
+output is byte-identical to the committed LF blobs). Full sha256:
+
+| file | local CRLF artifact | committed LF blob (runner) | what |
+|---|---|---|---|
+| `cnfs/p_00_8.cnf` | `83c405a3…c22c61197` | `4dcca1df…` | 8399 g8_14 + units `1 0; 4201 0; 8409 0` (gate0 = AND(x0,w8)); UNSAT <1s |
+| `cnfs/mask_14.cnf` | `e252b21b…d838acff1a2b` | `5841215c…` | 8402 full-256-row s=14 (42000 vars, 229339 clauses) |
+| `cnfs/mask_15.cnf` | `b079b24f…461e028c53` | `48af9253…` | 8402 full-256-row s=15 (44960 vars, 257476 clauses) |
 
 - 8402 MASK = `115792089237316195423570985008687437700436316516407802162747861043449034369768`
   (edge function of G = 0-1 0-2 0-3 0-4 1-2 1-5 3-4 3-6 5-6 5-7 6-7).
